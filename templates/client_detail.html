@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Szczegóły klienta</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
+    <body>
+
+    <header>
+        <div class="left">
+            <a href="/">Dashboard Siłowni</a>
+        </div>
+        <div class="right">
+            <a href="/clients">Klienci</a>
+        </div>
+    </header>
+
+    <div class="client-detail" style="margin-top: 10px;">
+        <h2 class="client-title" id="{{client.id}}">{{client.name}} {{client.surname}}</h2>
+        <table id="logs-table-client">
+            <thead>
+                <tr>
+                    <th>Czas</th>
+                    <th>Akcja</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function fetchClientData() {
+            try {
+                const clientId = document.querySelector('.client-title').id;
+                const response = await fetch(`/api/client/${clientId}`);
+                const data = await response.json();
+
+                const logsTableBody = document.getElementById('logs-table-client').querySelector('tbody');
+                logsTableBody.innerHTML = '';
+                data.logs.forEach(log => {
+                    const row = document.createElement('tr');
+                    
+                    const timestampCell = document.createElement('td');
+                    timestampCell.innerText = log.timestamp;
+                    row.appendChild(timestampCell);
+
+                    const actionCell = document.createElement('td');
+                    actionCell.innerText = log.action === 'entry' ? 'Wejście' : 'Wyjście';
+                    row.appendChild(actionCell);
+
+                    logsTableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+            }
+        }
+        setInterval(fetchClientData, 500);
+
+    </script>
+
+    </body>
+</html>
